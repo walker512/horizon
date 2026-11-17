@@ -104,3 +104,9 @@ Original Horizon code: MIT, copyright walker512. No competing project code is in
 ## Installation and local data
 
 This is a source ZIP distribution, not a PyPI package. Extract it, enter its `horizon` folder and use the commands above; no `pip install` is necessary. For a first run, choose a new data directory and use the built-in fictional example. Use the SQLite backup CLI for a consistent live copy, or stop every server/CLI process before manually copying database files. No delete/reset command is provided; use a separate data directory to start another project. An occupied port is an error, not an invitation to terminate another application: choose a different `--port`.
+
+### Observe official policies explicitly
+
+`python -m horizon.policies catalogue` lists two fixed official public pages.
+`python -m horizon.policies collect anthropic-usage --data-dir ./workspace --allow-network`
+records a static-text summary or an explicit unavailable observation, feeding existing version diffs and linked-approval invalidation. No redirects, browser, scheduled fetching or legal interpretation. [Scope, command flow and limitations](docs/OFFICIAL_POLICIES.md). This only partially covers AI product/policy tracking; structured model-price/context/license/quota comparison remains unimplemented.
