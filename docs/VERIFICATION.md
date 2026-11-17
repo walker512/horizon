@@ -23,3 +23,7 @@ Tests use fictional sources and editor judgments. Private logs, competitor check
 ## Subsequent CLI extensions
 
 Local source tracking added 22 public tests; GitHub discovery adds 28 public tests. The current source has 81 passing synthetic/local tests (31 original + 22 local tracking + 28 radar), zero skips on Linux/Python 3.12. Existing model, server and browser files remain unchanged. New CLI modules are not covered by the old browser CI. See LOCAL_TRACKING.md and GITHUB_RADAR.md for exact behavior and separate real-network validation; no new cross-platform or hosted CI claim is made.
+
+## Evidence-to-action extension
+
+The local action-planning CLI adds 23 synthetic tests. The current full suite has 104 passing tests on Linux/Python 3.12, zero skips. It covers actual SQLite transactions, source/review changes, completion gates, checklist resets on basis change, historical completion warnings, restart persistence, export escaping and real CLI commands. No new browser UI files or network requests are involved; historical browser checks are not represented as new action-UI acceptance.
