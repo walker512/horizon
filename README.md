@@ -32,6 +32,10 @@ The default data location is `~/.horizon/workspace.sqlite3`. Choose a different 
 
 A passage can be selected only after choosing a claim. Changing the selected claim clears the previous selection, so reselect the passage before linking.
 
+## Evidence-linked event timeline (new local CLI)
+
+Record a declared event time separately from source observation and local entry times. Use explicit offset instants, named-zone calendar windows or unknown time; overlapping windows do not invent a definite order. Corrections/withdrawals preserve history and source changes flag the captured editorial basis. See [docs/TIMELINE.md](docs/TIMELINE.md).
+
 ## Evidence-to-action planning (new local CLI)
 
 Turn an editor-approved claim into a human-owned plan with rationale, checklist and optional due date. Record progress, block completion when its evidence basis is no longer current, and preserve historical completion with a visible re-review warning after source changes. See [docs/ACTIONS.md](docs/ACTIONS.md). No task, email, deployment or purchase is executed.
