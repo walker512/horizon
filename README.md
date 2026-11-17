@@ -110,3 +110,7 @@ This is a source ZIP distribution, not a PyPI package. Extract it, enter its `ho
 `python -m horizon.policies catalogue` lists two fixed official public pages.
 `python -m horizon.policies collect anthropic-usage --data-dir ./workspace --allow-network`
 records a static-text summary or an explicit unavailable observation, feeding existing version diffs and linked-approval invalidation. No redirects, browser, scheduled fetching or legal interpretation. [Scope, command flow and limitations](docs/OFFICIAL_POLICIES.md). This only partially covers AI product/policy tracking; structured model-price/context/license/quota comparison remains unimplemented.
+
+### Compare structured product observations
+
+[Structured product fields](docs/PRODUCT_FIELDS.md) bind human-entered prices, context/output limits, license labels and request/token allowances to approved exact evidence. Explicit scope/unit/qualifier checks prevent misleading numerical comparisons; immutable historical evidence and stale-basis warnings remain visible. Run `python examples/structured_fields_demo.py --data-dir ./new-field-demo` for an original-synthetic source→review→revision→comparison workflow. No automatic extraction, current-price guarantee, legal interpretation or account-limit discovery.
