@@ -57,3 +57,7 @@ RC2 adds declared-length/framing checks and four tests using the actual http.cli
 ## Official HN community observations
 
 241 public tests pass locally, zero skips; 20 new synthetic tests cover the community→repository-association→editorial-import path, negative states, consent/framing boundaries, backup and CLI. One separate normal HTTPS live observation inspected 1 of the 500 returned new-feed IDs, with no linked-content fetching. It had no GitHub match, so actual cross-source association is not claimed; association tests use synthetic payloads. No new browser/cross-platform validation or whole-topic completion claim.
+
+## Deterministic role-plan workflow
+
+257 public tests pass locally, zero skips, including 16 new role-plan tests and actual CLI evidence/draft/adopt. The developer demo produced a draft without an action; a separate researcher demo with explicit --adopt created a planned, unchecked local action. A simulated review change immediately before Actions insertion is rejected by the real write-transaction basis check. Typed saved-draft alterations, stale sources and backup-reset approval states are rejected. No LLM, external action, browser or new cross-platform claim.
