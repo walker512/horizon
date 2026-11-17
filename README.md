@@ -32,6 +32,10 @@ The default data location is `~/.horizon/workspace.sqlite3`. Choose a different 
 
 A passage can be selected only after choosing a claim. Changing the selected claim clears the previous selection, so reselect the passage before linking.
 
+## Evidence-to-action planning (new local CLI)
+
+Turn an editor-approved claim into a human-owned plan with rationale, checklist and optional due date. Record progress, block completion when its evidence basis is no longer current, and preserve historical completion with a visible re-review warning after source changes. See [docs/ACTIONS.md](docs/ACTIONS.md). No task, email, deployment or purchase is executed.
+
 ## GitHub discovery observations (optional network CLI)
 
 Register a bounded public GitHub search, collect one page through the official API with explicit `--allow-network`, compare repository-ID observations over time, and import selected metadata summaries into the evidence desk. See [docs/GITHUB_RADAR.md](docs/GITHUB_RADAR.md). Only this separate command contacts GitHub; adding a source URL in the browser still never fetches it. It is not global Trending or a prediction of future stars.
