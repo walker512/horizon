@@ -7,6 +7,7 @@ from pathlib import Path
 class BackupError(ValueError):pass
 MAX_BYTES=512*1024*1024
 COLUMNS={
+'product_observations':['id','claim_id','evidence_id','spec','basis','recorded_at','withdrawn','withdrawal_note'],
 'sources':['id','title','url','kind','origin_group'],
 'snapshots':['id','source_id','text','availability','error','created_at','hash'],
 'claims':['id','text','topic','decision','review_signature','review_note','reviewed_at'],
