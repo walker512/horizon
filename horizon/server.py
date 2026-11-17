@@ -1,4 +1,4 @@
-"""Single-user, loopback-only interface. Source URLs are never fetched."""
+"""Single-user loopback interface; explicit workflow search is separately gated."""
 import argparse
 import json
 import os
@@ -12,8 +12,14 @@ from .export import markdown, html_brief
 ROOT=Path(__file__).resolve().parent.parent
 
 def bounded_json(raw):
+    def unique_pairs(items):
+        result={}
+        for key,value in items:
+            if key in result:raise ValueError('Duplicate JSON object keys are not accepted.')
+            result[key]=value
+        return result
     try:
-        data = json.loads(raw)
+        data = json.loads(raw,object_pairs_hook=unique_pairs)
     except RecursionError:
         raise ValueError('JSON nesting exceeds the maximum depth of 32.') from None
     pending = [(data, 0)]
@@ -28,6 +34,8 @@ def bounded_json(raw):
 def serve(host='127.0.0.1',port=8769,data=None):
     if host!='127.0.0.1':raise ValueError('This single-user preview only binds to 127.0.0.1.')
     store=Store(Path(data or Path.home()/'.horizon')/'workspace.sqlite3')
+    from .workflow import Workflow
+    workflow=Workflow(store.path)
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, fmt, *args):
             # Do not log source URLs, imported text, query strings or request payloads.
@@ -52,6 +60,12 @@ def serve(host='127.0.0.1',port=8769,data=None):
             try:
                 u=urlsplit(self.path)
                 if u.path=='/api/state':return self.reply(200,store.state())
+                if u.path=='/api/workflow':
+                    try:
+                        q=parse_qs(u.query,keep_blank_values=True)
+                        if not set(q)<={'resource','offset','limit'} or any(len(v)!=1 for v in q.values()):raise ValueError('Invalid workflow query parameters.')
+                        return self.reply(200,workflow.read(q.get('resource',['overview'])[0],int(q.get('offset',['0'])[0]),int(q.get('limit',['25'])[0])))
+                    except (ValueError,TypeError,KeyError,sqlite3.Error,OSError,UnicodeError):return self.reply(400,{'error':'Workflow read rejected. Check resource and bounded pagination; no supplied query or paths echoed.'})
                 if u.path=='/api/export':
                     fmt=parse_qs(u.query).get('format',['json'])[0]
                     if fmt=='json':return self.reply(200,store.portable(),filename='horizon-project.json')
@@ -74,11 +88,14 @@ def serve(host='127.0.0.1',port=8769,data=None):
                 if not isinstance(data,dict):raise ValueError('Expected a JSON object.')
                 u=urlsplit(self.path)
                 if not u.path.startswith('/api/'):return self.reply(404,{'error':'Not found.'})
+                if u.path.startswith('/api/workflow/'):
+                    try:return self.reply(200,workflow.apply(u.path[len('/api/workflow/'):],data))
+                    except (ValueError,TypeError,KeyError,sqlite3.Error,OSError,UnicodeError):return self.reply(400,{'error':'Workflow request rejected. Check operation fields, explicit consent, current editorial basis, checklist/state and storage limits. No supplied content or paths echoed.'})
                 self.reply(200,store.apply(u.path[5:],data))
             except (ValueError,TypeError,KeyError,sqlite3.Error,OSError) as e:
                 self.reply(400,{'error':str(e)[:1000]})
     server=ThreadingHTTPServer((host,port),Handler)
-    print(f'Horizon by walker512: http://{host}:{port}\nLocal data: {store.path}\nNo source fetching, AI calls, subscriptions or external publishing.')
+    print(f'Horizon by walker512: http://{host}:{port}\nLocal data: {store.path}\nNo automatic source fetching, AI calls, subscriptions or external publishing. Explicit workflow requests can search the public GitHub API.')
     try:server.serve_forever()
     except KeyboardInterrupt:pass
     finally:server.server_close()
