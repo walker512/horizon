@@ -43,7 +43,7 @@ class Actions:
             try:current=digest(basis(c))==digest(row['basis'])
             except ActionError:current=False
         return {**row,'basis_status':'current_editorial_basis' if current else 'needs_review','current_claim_status':c['status'] if c else 'missing','current_claim_text':c['text'] if c else None,'completed_steps':sum(x['done'] for x in row['checklist']),'step_count':len(row['checklist'])}
-    def create(self,claim_id,title,why,steps,owner='',due=''):
+    def create(self,claim_id,title,why,steps,owner='',due='',expected_basis=None):
         bounded(title,'Title',300);bounded(why,'Why',3000);bounded(owner,'Owner',200,True)
         if type(due) is not str or (due and (len(due)!=10 or date.fromisoformat(due).isoformat()!=due)):raise ActionError('Due date must be YYYY-MM-DD or empty.')
         if type(steps) is not list or not 1<=len(steps)<=20:raise ActionError('Supply 1..20 explicit next steps.')
@@ -53,7 +53,9 @@ class Actions:
             if db.execute('SELECT count(*) FROM news_actions').fetchone()[0]>=500:raise ActionError('At most 500 actions per workspace.')
             claim=self._claims(db).get(claim_id)
             if claim is None:raise ActionError('Claim not found.')
-            captured=basis(claim);aid=key();time=now();checks=[{'text':s,'done':False} for s in steps]
+            captured=basis(claim)
+            if expected_basis is not None and digest(captured)!=digest(expected_basis):raise ActionError('Evidence changed since draft preparation; regenerate and review the plan.')
+            aid=key();time=now();checks=[{'text':s,'done':False} for s in steps]
             db.execute('INSERT INTO news_actions VALUES(?,?,?,?,?,?,?,?,?,?,?)',(aid,claim_id,title,why,owner,due,'planned',json.dumps(checks,ensure_ascii=True),json.dumps(captured,ensure_ascii=True),time,time))
             self._event(db,aid,'created',{'title':title,'why':why,'owner':owner,'due_date':due,'checklist':checks,'basis':captured})
             return aid
