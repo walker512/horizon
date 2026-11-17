@@ -35,3 +35,7 @@ The local action-planning CLI adds 23 synthetic tests. The current full suite ha
 ## Integrated HTTP workflow service
 
 13 new tests exercise the loopback service and direct service dispatch, bringing the full suite to 143 passed on Linux/Python 3.12, zero skips. Real HTTP covers source→claim→review→action/event→source correction→stale completion refusal→human re-review→completion/withdrawal, consent boundaries, pagination and Host/Origin/media-type checks. External transport is mocked in new dispatch tests, not contacted. The server routing changed, but static UI/model and individual CLI engines are unchanged. No new workflow frontend, browser run or cross-platform CI is claimed.
+
+## Full-workspace backup and recovery
+
+18 new public synthetic tests verify SQLite structural/schema checks, real full-table backup, live committed WAL contents, concurrent transactional consistency, safe restore resets, preserved workflow histories, exclusive destinations, failed-publication cleanup and real CLI. The complete current suite has 161 passing tests on Linux/Python 3.12, zero skips. This is not an untrusted SQLite sanitizer, new browser verification or cross-platform certification.
