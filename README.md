@@ -126,3 +126,7 @@ The existing [event timeline](docs/TIMELINE.md#human-declared-releaseplanreportr
 ### Draft role-specific review plans before creating tasks
 
 [Role plans](docs/ROLE_PLANS.md) offer transparent developer/researcher prompts with explicit source gaps and separate unverified human interpretations. Prepare a read-only draft, inspect it, then explicitly adopt it into existing Actions. A transaction-time evidence check rejects stale drafts. No model call, task execution, external sync or reminder is implied. Try `python examples/role_plan_demo.py --data-dir ./new-role-demo`.
+
+### Selected-project dossiers
+
+[Project dossiers](docs/PROJECT_DOSSIERS.md) add a selected GitHub radar candidate → explicit README/API metadata observation → human quote/claim approval → immutable purpose/alternative/entry-barrier dossier → same-declared-scope comparison. No automatic ranking, installation, license interpretation or release verification. Start offline with `python examples/project_review_demo.py --data-dir ./new-project-demo`; real collection always requires `--allow-network`. This is a CLI integration with the existing editor, not a newly browser-tested interface.
