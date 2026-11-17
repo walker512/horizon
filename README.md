@@ -122,3 +122,7 @@ The existing [event timeline](docs/TIMELINE.md#human-declared-releaseplanreportr
 ### Add community context to project discovery
 
 [Community observations](docs/COMMUNITY_RADAR.md) collect a bounded prefix of the official Hacker News feed with explicit consent, expose exclusions/failures, associate exact GitHub repository URLs with an existing Radar page, and import selected discussion metadata into the same quote/review workflow. No comment/article crawling, independent-corroboration claim, automatic quality assessment or star prediction.
+
+### Draft role-specific review plans before creating tasks
+
+[Role plans](docs/ROLE_PLANS.md) offer transparent developer/researcher prompts with explicit source gaps and separate unverified human interpretations. Prepare a read-only draft, inspect it, then explicitly adopt it into existing Actions. A transaction-time evidence check rejects stale drafts. No model call, task execution, external sync or reminder is implied. Try `python examples/role_plan_demo.py --data-dir ./new-role-demo`.
