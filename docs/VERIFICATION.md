@@ -53,3 +53,7 @@ RC2 adds declared-length/framing checks and four tests using the actual http.cli
 ## Event-stage and captured-topic increment
 
 221 public tests pass locally on Linux/Python 3.12, zero skips. Seventeen new original-synthetic tests exercise explicit stage assessment, history/correction, stale/withdrawn effective-stage reset, no date-based promotion, topic filters, Markdown escaping, transactional rollback, full-backup restoration and actual CLI commands. Original static UI and HTTP dispatcher remain unchanged; no new browser/cross-platform test, automatic extraction or real-event truth evaluation. This partially covers the original intelligence-timeline topic rather than completing it.
+
+## Official HN community observations
+
+241 public tests pass locally, zero skips; 20 new synthetic tests cover the community→repository-association→editorial-import path, negative states, consent/framing boundaries, backup and CLI. One separate normal HTTPS live observation inspected 1 of the 500 returned new-feed IDs, with no linked-content fetching. It had no GitHub match, so actual cross-source association is not claimed; association tests use synthetic payloads. No new browser/cross-platform validation or whole-topic completion claim.
