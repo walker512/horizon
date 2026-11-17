@@ -39,3 +39,9 @@ The local action-planning CLI adds 23 synthetic tests. The current full suite ha
 ## Full-workspace backup and recovery
 
 18 new public synthetic tests verify SQLite structural/schema checks, real full-table backup, live committed WAL contents, concurrent transactional consistency, safe restore resets, preserved workflow histories, exclusive destinations, failed-publication cleanup and real CLI. The complete current suite has 161 passing tests on Linux/Python 3.12, zero skips. This is not an untrusted SQLite sanitizer, new browser verification or cross-platform certification.
+
+## Official-policy collector increment
+
+183 public tests pass locally on Linux/Python 3.12, zero skips, including 22 new original-synthetic-page tests. The tests mock the HTTP boundary, not the extractor/storage/approval/change-report engines. One separate final-collector HTTPS observation of the Anthropic catalogue page succeeded; no real change, effective-date interpretation, or OpenAI collector success is claimed. Private raw workspace/body is excluded from the release. Prior GUI tests do not constitute acceptance of this CLI increment; original frontend code is unchanged. No new Windows/macOS or browser run.
+
+RC2 adds declared-length/framing checks and four tests using the actual http.client.HTTPResponse over synthetic bytes. The live official-page observation was on RC1; RC2 was not newly exercised online.
