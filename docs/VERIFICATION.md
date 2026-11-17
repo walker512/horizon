@@ -27,3 +27,7 @@ Local source tracking added 22 public tests; GitHub discovery adds 28 public tes
 ## Evidence-to-action extension
 
 The local action-planning CLI adds 23 synthetic tests. The current full suite has 104 passing tests on Linux/Python 3.12, zero skips. It covers actual SQLite transactions, source/review changes, completion gates, checklist resets on basis change, historical completion warnings, restart persistence, export escaping and real CLI commands. No new browser UI files or network requests are involved; historical browser checks are not represented as new action-UI acceptance.
+
+## Event timeline extension
+
+26 new public synthetic tests exercise event-window normalization, DST day lengths, skipped dates, offset rejection, interval overlap/unknown ordering, source observation vs event times, retained withdrawals/revisions, stale basis, atomic updates and real CLI export. The full candidate suite has 130 passing tests on Linux/Python 3.12, zero skips. Named zones require an installed IANA timezone database. No new browser code, live event collection or factual chronology verification is implied.
