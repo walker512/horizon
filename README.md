@@ -118,3 +118,7 @@ records a static-text summary or an explicit unavailable observation, feeding ex
 ### Keep planned releases separate from reported or released events
 
 The existing [event timeline](docs/TIMELINE.md#human-declared-releaseplanreportrumor-stages) now supports explicit human stage assessments (`released`, `planned`, `reported`, `rumor`, `unknown`) with retained correction reasons. Changed evidence or event revisions invalidate an old assessment and show effective stage unknown rather than silently keeping “released.” Exact captured-topic filtering supports focused timelines. No automatic release/rumor verification or frontend claim.
+
+### Add community context to project discovery
+
+[Community observations](docs/COMMUNITY_RADAR.md) collect a bounded prefix of the official Hacker News feed with explicit consent, expose exclusions/failures, associate exact GitHub repository URLs with an existing Radar page, and import selected discussion metadata into the same quote/review workflow. No comment/article crawling, independent-corroboration claim, automatic quality assessment or star prediction.
