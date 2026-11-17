@@ -1,5 +1,11 @@
 # Verification scope
 
+## Current project-dossier increment
+
+302 public tests passed on Linux/Python 3.12 with zero skips: 257 prior tests, 4 additional radar framing regressions, and 41 project-dossier cases. A fresh synthetic script exercises candidate selection, two-part observation, explicit fixture-only editorial approvals, immutable dossiers, comparison, source correction and withdrawal. The existing browser files and editorial model are unchanged; this is not new browser acceptance.
+
+A separate private run successfully used one public GitHub search plus metadata/README requests for walker512/horizon, retaining 13,960 decoded README bytes with a matching Git blob SHA. It validates that ingestion path only, not real-user review or competitive quality. The real README/database are excluded from the release. Details and limitations are in PROJECT_DOSSIERS.md. The sections below are chronological historical validation records, not alternate current suite totals.
+
 ## Original editorial-desk release (historical)
 
 The runtime, static UI, demo and license are byte-identical to the independently reviewed candidate that passed private browser CI at commit b15c9a65645ca40c8601d010766cead0a1798483. Only documentation and a newly written public synthetic test suite are added/updated.
@@ -61,3 +67,5 @@ RC2 adds declared-length/framing checks and four tests using the actual http.cli
 ## Deterministic role-plan workflow
 
 257 public tests pass locally, zero skips, including 16 new role-plan tests and actual CLI evidence/draft/adopt. The developer demo produced a draft without an action; a separate researcher demo with explicit --adopt created a planned, unchecked local action. A simulated review change immediately before Actions insertion is rejected by the real write-transaction basis check. Typed saved-draft alterations, stale sources and backup-reset approval states are rejected. No LLM, external action, browser or new cross-platform claim.
+
+RC2 corrects per-part request URL provenance for canonical casing and same-ID renames, with failure and skipped-request regressions. The live GitHub observation above was made on RC1; RC2 was verified offline without another network request.
