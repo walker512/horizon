@@ -32,6 +32,10 @@ The default data location is `~/.horizon/workspace.sqlite3`. Choose a different 
 
 A passage can be selected only after choosing a claim. Changing the selected claim clears the previous selection, so reselect the passage before linking.
 
+## Complete workspace backup and safe restore
+
+The original portable editorial JSON does not contain every workflow table. Use [docs/BACKUP.md](docs/BACKUP.md) for consistent full SQLite backups including discovery history, actions and timelines, and new-directory recovery with old approvals reset and machine-local file registrations removed. Backups contain private data and are not sanitized sharing formats.
+
 ## Integrated local workflow API
 
 The running loopback server now exposes bounded workflow reads and explicit operations connecting discovery, registered-file scans, reviewed claims, actions and timeline events. See [docs/WORKFLOW_API.md](docs/WORKFLOW_API.md) for exact routes and a real tested end-to-end correction flow. This is service integration only: no new workflow frontend or browser acceptance is claimed.
@@ -99,4 +103,4 @@ Original Horizon code: MIT, copyright walker512. No competing project code is in
 
 ## Installation and local data
 
-This is a source ZIP distribution, not a PyPI package. Extract it, enter its `horizon` folder and use the commands above; no `pip install` is necessary. For a first run, choose a new data directory and use the built-in fictional example. Stop the server with Ctrl+C before copying `workspace.sqlite3` for a backup. No delete/reset command is provided; use a separate data directory to start another project. An occupied port is an error, not an invitation to terminate another application: choose a different `--port`.
+This is a source ZIP distribution, not a PyPI package. Extract it, enter its `horizon` folder and use the commands above; no `pip install` is necessary. For a first run, choose a new data directory and use the built-in fictional example. Use the SQLite backup CLI for a consistent live copy, or stop every server/CLI process before manually copying database files. No delete/reset command is provided; use a separate data directory to start another project. An occupied port is an error, not an invitation to terminate another application: choose a different `--port`.
