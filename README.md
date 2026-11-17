@@ -32,6 +32,10 @@ The default data location is `~/.horizon/workspace.sqlite3`. Choose a different 
 
 A passage can be selected only after choosing a claim. Changing the selected claim clears the previous selection, so reselect the passage before linking.
 
+## GitHub discovery observations (optional network CLI)
+
+Register a bounded public GitHub search, collect one page through the official API with explicit `--allow-network`, compare repository-ID observations over time, and import selected metadata summaries into the evidence desk. See [docs/GITHUB_RADAR.md](docs/GITHUB_RADAR.md). Only this separate command contacts GitHub; adding a source URL in the browser still never fetches it. It is not global Trending or a prediction of future stars.
+
 ## Local policy/source-file tracking (new CLI)
 
 Register an explicitly authorized local text file, rescan after your own acquisition process updates it, and inspect version changes plus affected claims. No URL is fetched. See [docs/LOCAL_TRACKING.md](docs/LOCAL_TRACKING.md) for registration, scan, diff/export, failure/recovery and privacy details. This adds local-file tracking, not public-web subscriptions or semantic policy interpretation.

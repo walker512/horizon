@@ -1,6 +1,6 @@
 # Security boundary
 
-Horizon is a single-user loopback application for supplied text. It does not fetch source URLs, send data to an AI provider, or publish briefings. Host checks and Origin checks protect ordinary browser access; JSON is required for write endpoints. This is not authentication for a multi-user deployment. Never expose it through a public reverse proxy.
+Horizon is a single-user loopback application for supplied text. The browser does not fetch source URLs, send data to an AI provider, or publish briefings. The separate `horizon.radar collect --allow-network` CLI sends your saved search query to the official public GitHub API; it never follows redirects or sends an account token. Do not place secrets in search queries. See docs/GITHUB_RADAR.md for its explicit network boundary. Host checks and Origin checks protect ordinary browser access; JSON is required for write endpoints. This is not authentication for a multi-user deployment. Never expose it through a public reverse proxy.
 
 Use only content you have permission to process. Avoid pasting credentials, private conversations, patient data or identifying information. URLs may contain sensitive query strings. Project JSON and briefing exports include supplied data and notes. No automatic redaction, encryption, copyright clearance or fact verification is provided.
 
