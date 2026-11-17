@@ -32,6 +32,10 @@ The default data location is `~/.horizon/workspace.sqlite3`. Choose a different 
 
 A passage can be selected only after choosing a claim. Changing the selected claim clears the previous selection, so reselect the passage before linking.
 
+## Integrated local workflow API
+
+The running loopback server now exposes bounded workflow reads and explicit operations connecting discovery, registered-file scans, reviewed claims, actions and timeline events. See [docs/WORKFLOW_API.md](docs/WORKFLOW_API.md) for exact routes and a real tested end-to-end correction flow. This is service integration only: no new workflow frontend or browser acceptance is claimed.
+
 ## Evidence-linked event timeline (new local CLI)
 
 Record a declared event time separately from source observation and local entry times. Use explicit offset instants, named-zone calendar windows or unknown time; overlapping windows do not invent a definite order. Corrections/withdrawals preserve history and source changes flag the captured editorial basis. See [docs/TIMELINE.md](docs/TIMELINE.md).
