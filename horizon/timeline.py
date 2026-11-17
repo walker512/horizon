@@ -8,6 +8,7 @@ from .actions import basis,bounded,ActionError
 
 class TimelineError(ValueError):pass
 KINDS=('release','policy','security','community','other')
+STAGES=('released','planned','reported','rumor','unknown')
 def window(precision,start='',end='',zone=''):
     for x in (precision,start,end,zone):
         if type(x) is not str:raise TimelineError('Event time fields must be text.')
@@ -96,32 +97,54 @@ class Timeline:
         with self.store.connect() as db:
             db.execute('BEGIN IMMEDIATE');old=self._row(db,eid)
             db.execute("UPDATE intel_events SET status='withdrawn',updated_at=? WHERE id=?",(now(),eid));self._log(db,eid,'withdrawn',{'previous_status':old['status'],'note':note})
+    def _fingerprint(self,r):
+        return digest({k:r[k] for k in ('id','claim_id','title','kind','time_window','basis','status','note','recorded_at','updated_at')})
+    def _assessment(self,db,r,current):
+        row=db.execute("SELECT time,detail FROM intel_event_history WHERE event_id=? AND operation='stage-assessed' ORDER BY id DESC LIMIT 1",(r['id'],)).fetchone()
+        if row is None:return {'declared_stage':'unknown','effective_stage':'unknown','status':'not_assessed','note':'','assessed_at':None,'automatic_verification':False}
+        d=json.loads(row['detail']);valid=current and r['status']=='active' and d['event_fingerprint']==self._fingerprint(r)
+        return {'declared_stage':d['stage'],'effective_stage':d['stage'] if valid else 'unknown','status':'current_editorial_assessment' if valid else 'needs_review','note':d['note'],'assessed_at':row['time'],'automatic_verification':False}
+    def assess(self,eid,stage,note):
+        if stage not in STAGES:raise TimelineError('Unknown declared stage.')
+        bounded(note,'Stage assessment reason',3000)
+        with self.store.connect() as db:
+            db.execute('BEGIN IMMEDIATE');r=self._row(db,eid);claims={c['id']:c for c in self.store.state(db)['claims']};view=self._view(db,r,claims)
+            if r['status']!='active' or view['basis_status']!='current_editorial_basis':raise TimelineError('Stage assessment requires an active event with current reviewed evidence.')
+            self._log(db,eid,'stage-assessed',{'stage':stage,'note':note,'event_fingerprint':self._fingerprint(r),'previous':view['assessment']})
     def _view(self,db,r,claims):
         c=claims.get(r['claim_id']);current=False
         if c and c['status']=='editor-approved':
             try:current=digest(self._basis(db,c))==digest(r['basis'])
             except (ActionError,TimelineError):current=False
-        return {**r,'basis_status':'current_editorial_basis' if current else 'needs_review','current_claim_status':c['status'] if c else 'missing','current_claim_text':c['text'] if c else None}
+        return {**r,'assessment':self._assessment(db,r,current),'basis_status':'current_editorial_basis' if current else 'needs_review','current_claim_status':c['status'] if c else 'missing','current_claim_text':c['text'] if c else None}
     def show(self,eid):
         with self.store.connect() as db:
+            db.execute('BEGIN')
             claims={c['id']:c for c in self.store.state(db)['claims']};r=self._view(db,self._row(db,eid),claims);r['history']=[{**dict(x),'detail':json.loads(x['detail'])} for x in db.execute('SELECT time,operation,detail FROM intel_event_history WHERE event_id=? ORDER BY id',(eid,))];return r
-    def listing(self):
+    def listing(self,topic=None):
+        if topic is not None:bounded(topic,'Captured topic filter',200)
         with self.store.connect() as db:
+            db.execute('BEGIN')
             claims={c['id']:c for c in self.store.state(db)['claims']};rows=[self._view(db,self._row(db,r['id']),claims) for r in db.execute('SELECT id FROM intel_events ORDER BY rowid')]
+        if topic is not None:rows=[r for r in rows if r['basis']['topic']==topic]
         rows.sort(key=lambda r:(r['time_window']['lower_utc'] is None,r['time_window']['lower_utc'] or '',r['recorded_at'],r['id']))
         for r in rows:
             a=r['time_window'];r['possible_overlap_ids']=[]
             if r['status']=='active' and a['lower_utc'] is not None:
                 r['possible_overlap_ids']=[s['id'] for s in rows if s['id']!=r['id'] and s['status']=='active' and s['time_window']['lower_utc'] is not None and a['lower_utc']<=s['time_window']['upper_utc'] and s['time_window']['lower_utc']<=a['upper_utc']]
             r['ordering_status']='unknown_time' if a['lower_utc'] is None else ('withdrawn_historical_window' if r['status']=='withdrawn' else ('overlapping_declared_windows' if r['possible_overlap_ids'] else 'disjoint_among_known_active_windows'))
-        return {'format':'horizon-event-timeline-v1','generated_at':now(),'ordering_notice':'Sorted by earliest declared UTC bound; overlapping or unknown windows do not establish a definite event order. All times are human assertions, not verified facts.','unknown_time_active_ids':[r['id'] for r in rows if r['status']=='active' and r['time_window']['lower_utc'] is None],'events':rows}
+        return {'format':'horizon-event-timeline-v1','captured_topic_filter':topic,'overlap_scope':'returned events only','generated_at':now(),'ordering_notice':'Sorted by earliest declared UTC bound; overlapping or unknown windows do not establish a definite event order. All times are human assertions, not verified facts.','unknown_time_active_ids':[r['id'] for r in rows if r['status']=='active' and r['time_window']['lower_utc'] is None],'events':rows}
 
 def markdown(timeline):
     import html
     def esc(x):return re.sub(r'([\\`*_{}\[\]()#+.!|>~-])',r'\\\1',html.escape(str(x),quote=False))
     lines=['# Horizon event timeline','',timeline['ordering_notice'],'','Recorded/observed time is separate from declared event time. No authenticity or actual event occurrence is certified.','']
+    lines+=['Captured topic filter: '+esc(timeline.get('captured_topic_filter') or 'all topics')+'; overlaps are checked only within returned events.','']
     for r in timeline['events']:
         w=r['time_window'];lines+=['## '+esc(r['title']),f"State: {r['status']} | Basis: {r['basis_status']} | Order: {r['ordering_status']}", 'Declared: '+esc(w['start'] or 'unknown')+' through '+esc(w['end'] or 'unknown')+'; precision '+w['precision']+'; zone '+esc(w['zone'] or 'explicit offset / unknown'), 'UTC window: '+esc(w['lower_utc'])+' through '+esc(w['upper_utc']),'Recorded locally: '+esc(r['recorded_at']),'Interpretation note: '+esc(r['note']),'Captured claim: '+esc(r['basis']['text']),'Current claim state: '+esc(r['current_claim_status']),'Possible overlap IDs: '+esc(', '.join(r['possible_overlap_ids'])),'']
+        assessment=r.get('assessment',{'effective_stage':'unknown','declared_stage':'unknown','status':'not_assessed','note':'','assessed_at':None})
+        lines+=['Human-declared stage: '+esc(assessment['effective_stage'])+' | Assessment: '+esc(assessment['status']),'Last declared stage (historical if stale): '+esc(assessment['declared_stage']),'Stage reason: '+esc(assessment['note']),'Assessed locally: '+esc(assessment['assessed_at']),'No automatic verification of release or rumor status.','']
+        if assessment['status']=='needs_review':lines+=['WARNING: Stage assessment needs review; effective stage is unknown.','']
         if r['basis_status']=='needs_review':lines+=['WARNING: Event basis needs human re-review. Historical wording/time is not automatically revalidated.','']
         if r['status']=='withdrawn':lines+=['WITHDRAWN: retained as history, excluded from active overlap checks.','']
         for e in r['basis']['evidence']:lines+=['- '+esc(e['relation'])+' / '+esc(e['source_title'])+' / '+esc(e['snapshot_id']),'  Source observed/imported: '+esc(e['source_observed_at']),'  '+esc(e['quote']),'  '+esc(e['source_url'])]
@@ -136,8 +159,9 @@ def main():
         if name=='create':a.add_argument('--claim',required=True)
         else:a.add_argument('event_id')
         a.add_argument('--title',required=True);a.add_argument('--kind',choices=KINDS,default='other');a.add_argument('--precision',choices=['instant','day','unknown'],required=True);a.add_argument('--start',default='');a.add_argument('--end',default='');a.add_argument('--zone',default='');a.add_argument('--note',required=True)
-    sub.add_parser('list');s=sub.add_parser('show');s.add_argument('event_id');w=sub.add_parser('withdraw');w.add_argument('event_id');w.add_argument('--note',required=True)
-    e=sub.add_parser('export');e.add_argument('--format',choices=['json','markdown'],default='json');e.add_argument('--out',required=True)
+    l=sub.add_parser('list');l.add_argument('--topic');s=sub.add_parser('show');s.add_argument('event_id');w=sub.add_parser('withdraw');w.add_argument('event_id');w.add_argument('--note',required=True)
+    stage=sub.add_parser('assess');stage.add_argument('event_id');stage.add_argument('--stage',choices=STAGES,required=True);stage.add_argument('--note',required=True)
+    e=sub.add_parser('export');e.add_argument('--topic');e.add_argument('--format',choices=['json','markdown'],default='json');e.add_argument('--out',required=True)
     a=p.parse_args()
     try:
         t=Timeline(Path(a.data_dir)/'workspace.sqlite3')
@@ -145,9 +169,10 @@ def main():
         elif a.command=='revise':t.revise(a.event_id,a.title,a.kind,a.precision,a.start,a.end,a.zone,a.note);result={'revised':True,'status':'active'}
         elif a.command=='withdraw':t.withdraw(a.event_id,a.note);result={'withdrawn':True,'history_retained':True}
         elif a.command=='show':result=t.show(a.event_id)
-        elif a.command=='list':result=t.listing()
+        elif a.command=='list':result=t.listing(a.topic)
+        elif a.command=='assess':t.assess(a.event_id,a.stage,a.note);result={'assessed':True,'automatic_verification':False}
         else:
-            result=t.listing();raw=((json.dumps(result,ensure_ascii=True,indent=2)+'\n') if a.format=='json' else markdown(result)).encode('utf8')
+            result=t.listing(a.topic);raw=((json.dumps(result,ensure_ascii=True,indent=2)+'\n') if a.format=='json' else markdown(result)).encode('utf8')
             if len(raw)>32*1024*1024:raise TimelineError('Timeline export exceeds 32 MiB.')
             with open(a.out,'xb') as f:f.write(raw)
             result={'exported':True}
