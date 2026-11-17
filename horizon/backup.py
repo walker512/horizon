@@ -7,6 +7,9 @@ from pathlib import Path
 class BackupError(ValueError):pass
 MAX_BYTES=512*1024*1024
 COLUMNS={
+'project_registry':['id','repo_id','full_name','query_id','selected_run','created_at'],
+'project_runs':['id','project_id','observed_at','status','detail'],
+'project_profiles':['id','project_id','run_id','spec','basis','recorded_at','withdrawn','withdrawal_note'],
 'community_runs':['id','feed','sample_size','keyword','observed_at','status','error','observation'],
 'product_observations':['id','claim_id','evidence_id','spec','basis','recorded_at','withdrawn','withdrawal_note'],
 'sources':['id','title','url','kind','origin_group'],

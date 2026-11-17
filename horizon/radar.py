@@ -61,6 +61,16 @@ def fetch(query,per_page):
         start=time.monotonic()
         with opener.open(request,timeout=15) as response:
             if response.status!=200:raise RadarError('GitHub did not return a successful search response.')
+            lengths=response.headers.get_all('Content-Length',[])
+            transfers=response.headers.get_all('Transfer-Encoding',[])
+            if len(lengths)>1 or len(transfers)>1 or (lengths and transfers):raise RadarError('Ambiguous GitHub response framing.')
+            if transfers and transfers[0].strip().lower()!='chunked':raise RadarError('Unsupported GitHub transfer encoding.')
+            expected=None
+            if lengths:
+                value=lengths[0].strip()
+                if not value or len(value)>10 or any(c not in '0123456789' for c in value):raise RadarError('Invalid declared GitHub response length.')
+                expected=int(value)
+                if expected>2*1024*1024:raise RadarError('Declared GitHub response exceeds byte limit.')
             raw=bytearray()
             while True:
                 if time.monotonic()-start>30:raise RadarError('GitHub response exceeded the read deadline.')
@@ -68,6 +78,7 @@ def fetch(query,per_page):
                 if not chunk:break
                 raw.extend(chunk)
                 if len(raw)>2*1024*1024:raise RadarError('GitHub response exceeded the byte limit.')
+            if expected is not None and len(raw)!=expected:raise RadarError('Truncated GitHub response.')
         return bytes(raw)
     except urllib.error.HTTPError as e:
         code=e.code;e.close();raise RadarError('GitHub HTTP status '+str(code)+'. No retry or redirect was followed.') from None
