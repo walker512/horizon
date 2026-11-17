@@ -1,6 +1,7 @@
 """Synthetic public-API responses plus real local CLI; no test network traffic."""
 import copy,http.client,json,tempfile,unittest,subprocess,sys
 from pathlib import Path
+from email.message import Message
 from unittest.mock import patch
 from horizon.radar import Radar,RadarError,projection,fetch,NoRedirect
 ROOT=Path(__file__).resolve().parents[1]
@@ -26,6 +27,7 @@ class Projection(unittest.TestCase):
     def test_transport_fixed_endpoint(self):
         class Reply:
             status=200
+            headers=Message()
             def __init__(self):self.raw=payload()
             def __enter__(self):return self
             def __exit__(self,*a):pass
@@ -64,6 +66,7 @@ class RadarTests(unittest.TestCase):
         self.collect()
         class BrokenReply:
             status=200
+            headers=Message()
             def __enter__(self):return self
             def __exit__(self,*args):pass
             def read(self,n):raise http.client.IncompleteRead(b'SECRET_SENTINEL',100)
