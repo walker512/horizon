@@ -31,3 +31,7 @@ The local action-planning CLI adds 23 synthetic tests. The current full suite ha
 ## Event timeline extension
 
 26 new public synthetic tests exercise event-window normalization, DST day lengths, skipped dates, offset rejection, interval overlap/unknown ordering, source observation vs event times, retained withdrawals/revisions, stale basis, atomic updates and real CLI export. The full candidate suite has 130 passing tests on Linux/Python 3.12, zero skips. Named zones require an installed IANA timezone database. No new browser code, live event collection or factual chronology verification is implied.
+
+## Integrated HTTP workflow service
+
+13 new tests exercise the loopback service and direct service dispatch, bringing the full suite to 143 passed on Linux/Python 3.12, zero skips. Real HTTP covers source→claim→review→action/event→source correction→stale completion refusal→human re-review→completion/withdrawal, consent boundaries, pagination and Host/Origin/media-type checks. External transport is mocked in new dispatch tests, not contacted. The server routing changed, but static UI/model and individual CLI engines are unchanged. No new workflow frontend, browser run or cross-platform CI is claimed.
