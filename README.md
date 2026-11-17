@@ -32,6 +32,10 @@ The default data location is `~/.horizon/workspace.sqlite3`. Choose a different 
 
 A passage can be selected only after choosing a claim. Changing the selected claim clears the previous selection, so reselect the passage before linking.
 
+## Local policy/source-file tracking (new CLI)
+
+Register an explicitly authorized local text file, rescan after your own acquisition process updates it, and inspect version changes plus affected claims. No URL is fetched. See [docs/LOCAL_TRACKING.md](docs/LOCAL_TRACKING.md) for registration, scan, diff/export, failure/recovery and privacy details. This adds local-file tracking, not public-web subscriptions or semantic policy interpretation.
+
 ## Real inputs without hidden fetching
 
 - **Add source:** paste text you have permission to process and record its URL, source type and availability. A URL is metadata only. It is never fetched.
@@ -69,7 +73,7 @@ The included synthetic tests cover state transitions, Unicode selections, import
 
 ## Limitations
 
-This is not the completed suite of news subscriptions, policy monitoring, timelines and action automation. Those overlapping directions should share an evidence model rather than become duplicate repositories. This preview has no subscriptions, source authentication, automated origin tracing, semantic fact evaluation, translation, scheduled delivery, rich collaboration, cross-browser certification, or real-device mobile acceptance. Narrow Chromium layouts were tested, not real phones.
+This is not the completed suite of news subscriptions, policy monitoring, timelines and action automation. Those overlapping directions should share an evidence model rather than become duplicate repositories. This version has no public-web subscriptions, source authentication, automated origin tracing, semantic fact evaluation, translation, scheduled delivery, rich collaboration, cross-browser certification, or real-device mobile acceptance. Narrow Chromium layouts were tested, not real phones.
 
 Source URLs are deduplicated by exact URL. Query parameters, aliases or changing GUID/URL mappings may produce separate records. Snapshot timestamps record when the editor imported text, not verified publication times. Source metadata can change, with affected approvals invalidated; source snapshots remain immutable.
 
