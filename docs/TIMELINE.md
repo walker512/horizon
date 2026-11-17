@@ -87,3 +87,26 @@ Exports use UTF-8/LF, exclusive new files and a 32 MiB bound. A failed write can
 26 new original synthetic tests, combined with the prior 104: **130 tests passed on Linux/Python 3.12, zero skipped**. Tests include actual SQLite updates and CLI commands, exact offset normalization, 23/25-hour DST dates, skipped calendar dates, unknown/overlapping windows, retained source observation timestamps, stale basis, withdrawal/revision history, rollback and escaped exports. They are not real-event chronology validation or a new browser acceptance run. Existing browser/model/watch/radar/actions code remains unchanged.
 
 [TimelineJS](https://github.com/NUKnightLab/TimelineJS3) already supports rich interactive storytelling timelines. Only its primary documentation was read; no runtime comparison, API interchange compatibility or superiority is claimed here. Horizon's implemented integration is a human-declared uncertain event window linked to its existing editorial evidence state, not a novel timeline algorithm or a replacement for rich visual authoring tools.
+
+## Human-declared release/plan/report/rumor stages
+
+Topic #4 called for distinguishing released material, plans, reporting and rumors, with corrections retained. Events now have a **separate editorial stage assessment**, rather than inferring occurrence from their category or date. The `kind=release` category alone still says nothing about whether an event happened.
+
+```sh
+python -m horizon.timeline --data-dir ./workspace assess EVENT_ID --stage planned --note 'The captured announcement describes a plan, not a shipped release.'
+python -m horizon.timeline --data-dir ./workspace show EVENT_ID
+python -m horizon.timeline --data-dir ./workspace list --topic 'model-release'
+python -m horizon.timeline --data-dir ./workspace export --topic 'model-release' --format markdown --out ./topic-timeline.md
+```
+
+Stages are `released`, `planned`, `reported`, `rumor`, `unknown`. **Every stage is a human assertion, not automatic confirmation.** `reported` means the editor is classifying reporting; it does not certify the reported event happened. `rumor` is not a proof that a claim is false. A planned date passing never promotes an event. Source authenticity, contradictory sources and semantic evidence adequacy still require human review.
+
+Assessment requires an active event with a current editor-approved evidence basis and a nonempty reason. Existing events default to `not_assessed` / unknown. Each assessment appends an immutable history entry with its reason, time, event fingerprint and prior assessment. Correct an assessment by issuing a new assessment; earlier labels/reasons remain available through `show`. The original event, time and evidence are not silently rewritten.
+
+Changing or withholding the claim, revising its evidence, changing the event (even an identical explicit revision), withdrawing it, or restoring a backup makes the assessment need review. The output then retains `declared_stage` for historical transparency, but sets **`effective_stage: unknown`**. Markdown includes both values and a warning. Reopening a withdrawn event does not revive its old stage. First revise/review the actual event basis, then explicitly assess again. An assessment's `current_editorial_assessment` status only means its captured editorial basis still matches; `automatic_verification` remains false.
+
+The assessment is stored in the existing bounded `intel_event_history`, so full workspace backup retains it without a schema migration. Editorial-only portable JSON still omits timeline/history. The prior history limits and transaction rollback apply. Do not manually modify historical fingerprints or treat them as signed evidence. Stage reasons and quoted evidence may be private; inspect exports before sharing.
+
+`--topic` uses exact, nonempty **captured claim-topic** text, not today's possibly edited claim topic. Historical events therefore stay in their originally captured topic until explicitly revised. An omitted filter returns all events. The returned report discloses the filter; overlap checks are limited to the returned subset, not all workspace events. Unknown-time and historical ordering warnings remain intact. Reads of claims/events/assessments use one SQLite read transaction per `show`/`list` operation.
+
+This is CLI and JSON/Markdown output. Existing service reads expose the additional assessment fields, but no new write API or frontend controls are provided. There is no new browser validation, automatic extraction, topic inference, semantic deduplication, rumor fact-checking or visual timeline. The added 17 original-synthetic tests cover all labels, correction history, source/review/event invalidation, withdrawal/reopening, topic filtering, escaping, rollback, backup restore and actual CLI commands. They do not establish the truth of real-world release reports.

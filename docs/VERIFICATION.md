@@ -49,3 +49,7 @@ RC2 adds declared-length/framing checks and four tests using the actual http.cli
 ## Structured product-field increment
 
 204 public tests pass locally on Linux/Python 3.12 with zero skips, including 21 new synthetic tests. Actual CLI add/list/show/compare/withdraw and full-backup restoration are exercised. The original-synthetic demo was executed and retained both historical evidence and the needs-review warning with an exact 0.50 price difference. Official pricing/model/rate-limit/license documentation informed schema dimensions, not a claim to auto-extract current facts. No new online collection, browser or cross-platform run for this increment. The backup allowlist now includes product_observations; legacy/editorial-only portability limitations are documented.
+
+## Event-stage and captured-topic increment
+
+221 public tests pass locally on Linux/Python 3.12, zero skips. Seventeen new original-synthetic tests exercise explicit stage assessment, history/correction, stale/withdrawn effective-stage reset, no date-based promotion, topic filters, Markdown escaping, transactional rollback, full-backup restoration and actual CLI commands. Original static UI and HTTP dispatcher remain unchanged; no new browser/cross-platform test, automatic extraction or real-event truth evaluation. This partially covers the original intelligence-timeline topic rather than completing it.
