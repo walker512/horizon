@@ -45,3 +45,7 @@ The local action-planning CLI adds 23 synthetic tests. The current full suite ha
 183 public tests pass locally on Linux/Python 3.12, zero skips, including 22 new original-synthetic-page tests. The tests mock the HTTP boundary, not the extractor/storage/approval/change-report engines. One separate final-collector HTTPS observation of the Anthropic catalogue page succeeded; no real change, effective-date interpretation, or OpenAI collector success is claimed. Private raw workspace/body is excluded from the release. Prior GUI tests do not constitute acceptance of this CLI increment; original frontend code is unchanged. No new Windows/macOS or browser run.
 
 RC2 adds declared-length/framing checks and four tests using the actual http.client.HTTPResponse over synthetic bytes. The live official-page observation was on RC1; RC2 was not newly exercised online.
+
+## Structured product-field increment
+
+204 public tests pass locally on Linux/Python 3.12 with zero skips, including 21 new synthetic tests. Actual CLI add/list/show/compare/withdraw and full-backup restoration are exercised. The original-synthetic demo was executed and retained both historical evidence and the needs-review warning with an exact 0.50 price difference. Official pricing/model/rate-limit/license documentation informed schema dimensions, not a claim to auto-extract current facts. No new online collection, browser or cross-platform run for this increment. The backup allowlist now includes product_observations; legacy/editorial-only portability limitations are documented.
