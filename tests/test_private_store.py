@@ -130,3 +130,53 @@ class PrivateStoreTests(unittest.TestCase):
             out,err=proc.communicate(timeout=20)
             self.assertEqual(proc.returncode,0,err.decode())
         with Store(p).connect() as db:self.assertEqual(db.execute('SELECT count(*) FROM claims').fetchone()[0],6)
+
+    def test_sidecar_unlinked_after_open_retries_path(self):
+        from horizon.private_store import prepare
+        p=self.root/'db';Store(p)
+        for suffix in ('-journal','-wal','-shm'):
+            side=Path(str(p)+suffix);side.touch(mode=0o600)
+            original=os.open
+            def opening(path,*a,**kw):
+                fd=original(path,*a,**kw)
+                if Path(path)==side:side.unlink()
+                return fd
+            with patch('horizon.private_store.os.open',opening):prepare(p,create=False)
+            self.assertFalse(side.exists())
+
+    def test_unlinked_sidecar_replacement_hardlink_is_rejected(self):
+        from horizon.private_store import prepare
+        p=self.root/'db';Store(p)
+        side=Path(str(p)+'-journal');side.touch(mode=0o600)
+        target=self.root/'secret';target.write_text('private');target.chmod(0o600)
+        original=os.open;first=True
+        def opening(path,*a,**kw):
+            nonlocal first
+            fd=original(path,*a,**kw)
+            if Path(path)==side and first:
+                first=False;side.unlink();os.link(target,side)
+            return fd
+        with patch('horizon.private_store.os.open',opening):
+            with self.assertRaises(ValueError):prepare(p,create=False)
+        self.assertEqual(target.read_text(),'private')
+
+    def test_sidecar_churn_bounded_and_main_unlink_still_rejected(self):
+        from horizon.private_store import prepare
+        p=self.root/'db';Store(p)
+        side=Path(str(p)+'-journal');side.touch(mode=0o600)
+        original=os.open;count=0
+        def opening(path,*a,**kw):
+            nonlocal count
+            fd=original(path,*a,**kw)
+            if Path(path)==side:
+                count+=1;side.unlink();os.close(original(side,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600))
+            return fd
+        with patch('horizon.private_store.os.open',opening):
+            with self.assertRaisesRegex(ValueError,'repeatedly'):prepare(p,create=False)
+        self.assertEqual(count,16)
+        def unlink_db(path,*a,**kw):
+            fd=original(path,*a,**kw)
+            if Path(path)==p:p.unlink()
+            return fd
+        with patch('horizon.private_store.os.open',unlink_db):
+            with self.assertRaises(ValueError):prepare(p,create=False)
