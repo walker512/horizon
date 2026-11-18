@@ -8,13 +8,15 @@ Horizon is a local, human-operated editorial evidence desk by **walker512**. Sav
 
 ## Run from the extracted folder
 
-Python 3.11 or later; no third-party runtime dependencies.
+**Requires Linux/macOS with enforced POSIX filesystem permissions and Python 3.11 or later. Windows is currently unsupported:** workspace initialization refuses to run because Windows ACL validation is not implemented. No third-party runtime dependencies.
+
+Existing workspaces created by older versions may be rejected for broad permissions. See [offline permission repair and storage limitations](docs/STORAGE_PRIVACY.md) before restarting; this patch does not silently change existing folders.
 
 ```sh
 python -m horizon
 ```
 
-Open **http://127.0.0.1:8769**. On systems where `python` is not Python 3, use `python3` or Windows `py -3`.
+Open **http://127.0.0.1:8769**. On systems where `python` is not Python 3, use `python3`.
 
 ```sh
 python -m horizon --port 8769 --data-dir ./my-local-workspace
