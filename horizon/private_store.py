@@ -4,10 +4,10 @@ from pathlib import Path
 import stat
 
 
-def _check(info, directory=False):
+def _check(info, directory=False, unlinked_sidecar=False):
     kind = stat.S_ISDIR if directory else stat.S_ISREG
     if (not kind(info.st_mode) or info.st_uid != os.getuid()
-            or info.st_mode & 0o077 or (not directory and info.st_nlink != 1)):
+            or info.st_mode & 0o077 or (not directory and info.st_nlink not in ((0, 1) if unlinked_sidecar else (1,)))):
         raise ValueError('Unsafe workspace permissions or file type. Use an owned private directory (0700) and regular single-link files (0600); stop other writers before repairing an existing workspace.')
 
 
@@ -49,12 +49,31 @@ def prepare(path, create=True):
         os.close(fd)
     for suffix in ('-journal', '-wal', '-shm'):
         sidecar = Path(str(path) + suffix)
-        try:
-            fd = os.open(sidecar, flags)
-        except FileNotFoundError:
-            continue
-        try:
-            _check(os.fstat(fd))
-        finally:
-            os.close(fd)
+        # SQLite may remove a journal after open() but before fstat(). An
+        # unlinked descriptor is not the current pathname: validate its remaining
+        # attributes, then retry the pathname, never accept a replacement unseen.
+        for attempt in range(16):
+            try:
+                fd = os.open(sidecar, flags)
+            except FileNotFoundError:
+                break
+            try:
+                info = os.fstat(fd)
+                _check(info, unlinked_sidecar=True)
+                if info.st_nlink == 0:
+                    continue
+                try:
+                    current = sidecar.lstat()
+                except FileNotFoundError:
+                    continue
+                _check(current, unlinked_sidecar=True)
+                if current.st_nlink == 0:
+                    continue
+                if (info.st_dev, info.st_ino) != (current.st_dev, current.st_ino):
+                    continue
+                break
+            finally:
+                os.close(fd)
+        else:
+            raise ValueError('Workspace sidecar changed repeatedly during validation; retry when writers are idle.')
     return path
