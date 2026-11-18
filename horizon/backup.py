@@ -119,7 +119,7 @@ def restore(source,data_dir,acknowledge_reset=False):
             db.execute('INSERT INTO audit(time,action,detail) VALUES(?,?,?)',(datetime.now(timezone.utc).isoformat(),'workspace-restored',json.dumps(detail,ensure_ascii=True)))
             db.commit()
         result=check(temp);result['safety_reset']=detail;result['sha256']=_hash(temp)
-        target.mkdir();made=True;_publish(temp,target/'workspace.sqlite3');return result
+        target.mkdir(mode=0o700);made=True;_publish(temp,target/'workspace.sqlite3');return result
     except BaseException:
         if made:
             try:target.rmdir() # never recursively remove unknown files

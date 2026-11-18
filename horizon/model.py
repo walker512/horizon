@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
+from .private_store import prepare
 
 KINDS = {'primary', 'report', 'relay', 'summary'}
 AVAILABILITY = {'full', 'summary', 'failed'}
@@ -35,8 +36,7 @@ def safe_url(value):
 
 class Store:
     def __init__(self, path):
-        self.path = Path(path)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.path = prepare(path)
         with self.connect() as db:
             db.executescript('''
             CREATE TABLE IF NOT EXISTS sources(id TEXT PRIMARY KEY,title TEXT NOT NULL,url TEXT NOT NULL UNIQUE,kind TEXT NOT NULL,origin_group TEXT NOT NULL);
@@ -46,7 +46,10 @@ class Store:
             CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY AUTOINCREMENT,time TEXT NOT NULL,action TEXT NOT NULL,detail TEXT NOT NULL);
             ''')
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=15)
+        prepare(self.path, create=False)
+        # rw refuses recreation if the checked database disappears. SQLite derives
+        # journal/WAL permissions from the private main database on POSIX.
+        db = sqlite3.connect(self.path.as_uri() + "?mode=rw", uri=True, timeout=15)
         db.row_factory = sqlite3.Row
         db.execute('PRAGMA foreign_keys=ON')
         return db
