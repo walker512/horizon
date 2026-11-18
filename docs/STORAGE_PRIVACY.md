@@ -28,3 +28,10 @@ replacement by that account is outside the threat model. Windows storage current
 fails closed because equivalent ACL verification is not implemented. Database files
 and backups still contain sensitive evidence and notes and should not be published.
 This patch adds no browser interface. The separate Action desk UI candidate is not included.
+
+Concurrent SQLite sidecar deletion is handled by rechecking the pathname when an
+already-open journal/WAL/shared-memory descriptor has become unlinked. Its owner,
+file type and permissions must still pass validation. A replacement is checked
+independently; linked files with multiple names remain rejected. Validation retries
+at most 16 times per sidecar, then fails with a controlled busy/churn error rather
+than looping indefinitely. The database itself must always have exactly one link.
